@@ -20,8 +20,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from pathlib import Path
 
 st.set_page_config(page_title="跨境电商创业决策工作台", page_icon="🧭", layout="wide")
+
+BASE = Path(__file__).resolve().parents[1]
+PPT_URL = "https://docs.qq.com/slide/DWmxaZEhsTkN1ZFZh"
 
 # =====================================================================
 # 共享数据（基于 B1 项目真实计算；采集 2026-09-06）
@@ -100,24 +104,47 @@ def metric_row(label, user_val, median):
 # 页面
 # =====================================================================
 def page_overview():
-    st.title("🧭 跨境电商创业决策工作台")
-    st.caption("基于 B1 项目：5 家中国跨境电商上市公司公开财报 + 海关宏观数据（2025 年报口径，采集 2026-09-06）")
-    st.markdown("""
-这是一套“先算清单件账，再选品类市场，最后持续体检”的决策工具：
+    st.title("🌐 中国跨境电商出海赛道分析 · 作品集")
+    st.caption("Xuefei Wang · 数据分析 / 商业分析 / 产品方向 · 2026 秋招")
+    st.markdown(
+        "从亚马逊一线运营的真实困惑出发，用公开财报做的一次行业级验证，"
+        "并把结论做成了可用的决策工具。以下三个入口指向同一个项目的不同侧面。")
 
-| 页 | 回答 | 靠什么 |
-|---|---|---|
-| 🧮 P1 单位经济测算 | 这件货赚不赚钱 | 售价 - 佣金/FBA/广告/成本 |
-| 🧭 P2 选品类助手 | 这个品类能不能做 | 单位经济 + 风险规则 |
-| 🌍 P3 市场选择器 | 先做哪个市场 | 海关数据 + 致欧分地区毛利实证 |
-| 🩺 P4 经营健康体检 | 走得长远吗？何时转型 | 对标 5 家上市公司基准 + 危险信号 |
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown("**📊 项目故事 PPT**\n\n我的问题、分析、验证、结论与复盘（13 页图文叙事）。")
+        st.link_button("打开 PPT（腾讯文档）", PPT_URL, width="stretch")
+    with c2:
+        st.markdown("**🧭 在线决策工具（就是本页）**\n\nP1 算账 · P2 选品类 · P3 市场 · P4 经营体检——用左侧导航体验。")
+        st.markdown("核心图表摘要见下方。")
+    with c3:
+        st.markdown("**📈 分析与数据**\n\n宏观 → 公司对比 → 现金流深挖，口径与局限全部记录在案。")
+        st.markdown("数据与脚本为私有，面试时可现场演示。")
 
-**数据支持的边界（重要）**：公开数据能给你“基准、可行性、风险信号与转型阈值”；
-“具体品类的需求热度、供应商报价”需要私有数据（卖家后台/选品工具/报价单），工具会提示你要补什么。
-""")
     st.divider()
-    st.markdown("**结论速记**：销售费用率是模式分水岭（品牌约22% vs 铺货约35%）；"
-                "欧洲毛利高但增长慢；利润≠现金流（安克 2025 OCF/净利 0.19）；行业龙头集中度 <3%。")
+    st.markdown("### 核心发现（30 秒速读）")
+    st.markdown("""
+1. **销售费用率是模式分水岭**：安克 22.4%（净利率 8.3%）vs 赛维 35.4%（净利率 2.4%）→ 毛利率高 ≠ 赚钱；
+2. **欧洲毛利更高、增长更慢**：致欧欧洲毛利率 36.4% > 美加 30.3%，本地化是隐形门槛；
+3. **利润 ≠ 现金**：安克 2025 净利 25.5 亿但经营现金流仅 4.8 亿，存货 + 应收占住现金；
+4. **行业高度分散**：5 家龙头合计仅约占出口额 2.9% → 细分做深是中小卖家的路。
+""")
+
+    figs = [
+        (BASE / "reports" / "figures" / "m3_margin_2025.png", "模式对比：毛利率 vs 净利率（2025）"),
+        (BASE / "reports" / "figures" / "m3b_anker_cashflow.png", "现金流深挖：安克 净利 vs 经营现金流"),
+        (BASE / "reports" / "figures" / "m2_market_size.png", "宏观：中国跨境电商进出口规模"),
+    ]
+    cols = st.columns(3)
+    for col, (fp, cap) in zip(cols, figs):
+        if fp.exists():
+            col.image(str(fp), caption=cap, width=340)
+
+    st.divider()
+    with st.expander("⚠️ 数据边界（诚实声明）"):
+        st.markdown("公开数据能给出基准、可行性、风险信号与转型阈值；具体品类需求热度、供应商报价属于私有数据，"
+                    "工具会明确提示需补充什么。上市公司存在幸存者偏差，结论只到证据能到的地方。")
+    st.caption("联系与更多材料见简历 · 本项目代码与分析全程由本人完成（基于公开财报与官方统计）")
 
 
 def _ui_calc_inputs(title, key):
