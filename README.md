@@ -13,7 +13,7 @@
 | 材料 | 链接 |
 |---|---|
 | 一页作品集门户 | https://ashely-sudo.github.io/cross-border-analysis/portfolio.html |
-| 项目故事 PPT（13 页，在线预览） | https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAshely-sudo%2Fcross-border-analysis%2Fmain%2Fcross-border-story-v2.pptx |
+| 项目故事 PPT（13 页，在线预览） | https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2FAshely-sudo%2Fcross-border-analysis%2Fmain%2Fcross-border-story-v2.pptx%3Fv%3D20260906b |
 | 在线决策工作台 Demo | https://cross-border-analysis.streamlit.app/ |
 
 > Pages 需在仓库 Settings → Pages 选择 `Deploy from a branch`（main / root）后生效。
