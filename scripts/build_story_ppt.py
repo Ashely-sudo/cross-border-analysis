@@ -92,7 +92,7 @@ def pic(slide, path, x, y, w):
     return slide.shapes.add_picture(str(path), Inches(x), Inches(y), width=Inches(w))
 
 
-def footer(slide, n, total=16):
+def footer(slide, n, total=14):
     _, tf = tb(slide, Inches(0.7), Inches(7.05), Inches(4), Inches(0.35))
     p = tf.paragraphs[0]
     r = p.add_run(); r.text = "Xuefei Wang · 2026"
@@ -137,22 +137,14 @@ for i, t in enumerate(["Xuefei Wang  ·  数据分析 / 商业分析 / 产品方
 # ---------------- S2 我的起点 ----------------
 s = add_slide()
 header(s, "WHY · 起点", "我为什么做这个项目")
-rows2 = [
-    ("背景：", "我上一份工作在一家做自有品牌出海的公司做亚马逊运营，卖阀门/管件、实验室仪器、封口机这类偏专业的产品，在售 SKU 超过 1000 个。"),
-    ("经营模式：", "同一类阀门按通径、材质和螺纹标准展开，两通/三通、1/2 到 2 英寸、不锈钢/黄铜/PVC 都会配齐。客户多是工程师、实验室或做自动化改造的人，下单前会核对型号参数。"),
-    ("负责工作：", "日常运营及新品选品，通过市场调研、竞品分析和单件 ROI 测算，制定新品定价、广告投入及备货策略。"),
-    ("问题：", "大部分 SKU 单独核算均为盈利，但公司在亚马逊平台的整体表现不佳。为什么“单品盈利”没有转化为“整体增长”？"),
-    ("猜测：", "① 平台佣金、仓储及履约成本上升；② 竞争加剧导致广告获客成本提高；③ 1000+ SKU 铺得过广，资源及库存被长尾 SKU 分散"),
-    ("验证：", "用上市公司财报和海关官方数据，从行业、公司、现金流三个层面拆解业务表现。"),
-]
-_, tf2 = tb(s, Inches(0.7), Inches(1.9), Inches(11.9), Inches(5.15))
-for i2, (lab2, body2) in enumerate(rows2):
-    p2 = tf2.paragraphs[0] if i2 == 0 else tf2.add_paragraph()
-    p2.space_after = Pt(13)
-    rl2 = p2.add_run(); rl2.text = lab2
-    set_run(rl2, 16, ACCENT, True)
-    rb2 = p2.add_run(); rb2.text = body2
-    set_run(rb2, 15.5, INK, False)
+bullets(s, [
+    ('背景：我上一份工作在一家做自有品牌出海的公司做亚马逊运营，卖阀门/管件、实验室仪器、封口机这类偏专业的产品，在售 SKU 超过 1000 个。', 0, False),
+    ('经营模式：同一类阀门按通径、材质和螺纹标准展开，两通/三通、1/2 到 2 英寸、不锈钢/黄铜/PVC 都会配齐。客户多是工程师、实验室或做自动化改造的人，下单前会核对型号参数。', 0, False),
+    ('负责工作：日常运营及新品选品，通过市场调研、竞品分析和单件 ROI 测算，制定新品定价、广告投入及备货策略。', 0, False),
+    ('问题：大部分 SKU 单独核算均为盈利，但亚马逊平台整体表现却不如前几年。→ 为什么“单品盈利”没有转化为“整体增长”？', 0, False),
+    ('猜测：① 平台佣金、仓储及履约成本上升  ② 竞争加剧导致广告获客成本提高  ③ 1000+ SKU 铺得过广，资源及库存被长尾 SKU 分散', 0, False),
+    ('验证：用上市公司财报和海关官方数据，从平台、行业、企业经营三个层面拆解业务表现。', 0, False),
+], w=11.7, size=16, gap=15)
 footer(s, 2)
 
 # ---------------- S3 问题 ----------------
@@ -362,40 +354,6 @@ px = tfx.paragraphs[0]; rx = px.add_run()
 rx.text = "从“看报表”到“能决策”：每一页都基于 5 家公司的真实财务基准"
 set_run(rx, 12.5, AMBER, True)
 footer(s, 14)
-
-# ---------------- S15 复盘 ----------------
-s = add_slide()
-header(s, "REFLECTION · 复盘", "做得好的 & 下次能更好的")
-bullets(s, [
-    ("做得好的：从亲身困惑出发 / 三层框架 / 现金流深挖 / 把结论做成工具", 0, True),
-    ("不足与边界：销售费用没拆“广告 vs 佣金”；缺 2026H1 与关税影响；供应商报价、需求热度这类私有数据只能给框架", 0, False),
-    ("如果重来：会更早看现金流量表；先用少量行业访谈补定性，再用数据验证定量", 0, True),
-    ("可迁移：这套“提问 → 取数 → 验证 → 结论 → 工具化”的流程，适用于任何行业研究 / 商业分析", 0, False),
-], size=16)
-footer(s, 15)
-
-# ---------------- S16 收尾 ----------------
-s = add_slide()
-rect(s, Inches(0), Inches(0), Inches(0.22), prs.slide_height, ACCENT)
-_, tf = tb(s, Inches(1.2), Inches(2.2), Inches(11), Inches(3.4))
-lines = [
-    ("数据之外，我更想让你看到的，是我的思考方式：", 21, INK, True),
-    ("会提问 —— 从一句“公司怎么不赚钱”出发", 16.5, SUB, False),
-    ("会验证 —— 公开数据也能做严谨的研究：口径、抽查、交叉验证、写清局限", 16.5, SUB, False),
-    ("会落地 —— 把结论做成能用的工具，而不只是报告", 16.5, SUB, False),
-    ("会复盘 —— 知道自己哪里好、哪里还能更好", 16.5, SUB, False),
-]
-first = True
-for t, sz, col, b in lines:
-    p = tf.paragraphs[0] if first else tf.add_paragraph()
-    first = False
-    p.space_after = Pt(10)
-    r = p.add_run(); r.text = t
-    set_run(r, sz, col, b)
-_, tf2 = tb(s, Inches(1.2), Inches(6.3), Inches(11), Inches(0.8))
-p2 = tf2.paragraphs[0]; r2 = p2.add_run()
-r2.text = "Xuefei Wang · 2026.09 · 联系与更多材料见简历"
-set_run(r2, 13, SUB)
 
 out = OUT / "中国跨境电商出海赛道分析-项目故事-v2.pptx"
 prs.save(out)
