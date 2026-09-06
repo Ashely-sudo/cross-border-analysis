@@ -92,7 +92,7 @@ def pic(slide, path, x, y, w):
     return slide.shapes.add_picture(str(path), Inches(x), Inches(y), width=Inches(w))
 
 
-def footer(slide, n, total=15):
+def footer(slide, n, total=16):
     _, tf = tb(slide, Inches(0.7), Inches(7.05), Inches(4), Inches(0.35))
     p = tf.paragraphs[0]
     r = p.add_run(); r.text = "Xuefei Wang · 2026"
@@ -189,7 +189,26 @@ pic(s, FIG / "m2_market_size.png", 7.1, 2.0, 5.6)
 pic(s, FIG / "m2_export_destination.png", 7.1, 4.55, 5.6)
 footer(s, 5)
 
-# ---------------- S6 模式发现 ----------------
+# ---------------- S6 进入与退出 ----------------
+s = add_slide()
+header(s, "FINDING ① · 赛道", "支撑数据：这个行业进得有多快、洗牌有多快")
+blk6 = [
+    ("体量 · 官方口径", "跨境电商主体超 12 万家（约占近 70 万家有进出口记录经营主体的 1/6）；2024 进出口 2.63 万亿、+10.8%。来源：商务部 / 经济日报 2025-02", ACCENT),
+    ("新增进入 ① · 企查查", "2023 注册 5,818 家（+44%）→ 2024 注册 8,598 家（+47%）→ 2025 前 4 月 5,080 家（+173%）；现存 2.89 万家（2025-05）", ACCENT),
+    ("新增进入 ② · 天眼查", "现存超 3.4 万家（2025-09）；2024 新增 7,000+（较 2023 约 +50%）；2025 已新增 1.3 万+；成立不足 1 年的企业占 46.7%", AMBER),
+    ("退出 · 可见案例", "网经社“死亡名单”：2022 年 31 家 → 2023 年 11 家 → 2024 年 50 家（+354.5%）。仅统计有知名度的倒闭/关停，不是退出总数", AMBER),
+]
+for i, (k, v, ac) in enumerate(blk6):
+    x = 0.7 + (i % 2) * 6.15
+    y = 2.05 + (i // 2) * 2.25
+    card(s, x, y, 5.85, 2.0, k, v, ac, t_size=14.5, b_size=11.5)
+_, tf = tb(s, Inches(0.7), Inches(6.55), Inches(12), Inches(0.6))
+p = tf.paragraphs[0]; r = p.add_run()
+r.text = "口径提醒：官方“主体 12 万”≠工商注册“2.9~3.4 万家”（多数卖家经营范围不含“跨境电商”字样）；企查查/天眼查不能混比；退出无官方逐年统计，故只做定性判断。"
+set_run(r, 11.5, SUB)
+footer(s, 6)
+
+# ---------------- S7 模式发现 ----------------
 s = add_slide()
 header(s, "FINDING ② · 模式", "精品 vs 铺货：销售费用率是分水岭")
 bullets(s, [
@@ -200,9 +219,9 @@ bullets(s, [
     ("精品靠产品力与复购压低“流量税”，铺货靠买量，天然更重", 1, False),
 ], w=6.2, size=15)
 pic(s, FIG / "m3_margin_2025.png", 7.1, 2.3, 5.6)
-footer(s, 6)
+footer(s, 7)
 
-# ---------------- S7 分类方法 ----------------
+# ---------------- S8 分类方法 ----------------
 s = add_slide()
 header(s, "METHOD · 分类", "我怎么定义“精品 vs 铺货”：四个可核对的信号")
 blk = [
@@ -219,9 +238,9 @@ _, tf = tb(s, Inches(0.7), Inches(6.55), Inches(12), Inches(0.6))
 p = tf.paragraphs[0]; r = p.add_run()
 r.text = "说明：这是“谱带”不是“开关”——判断看经营结构，而非有没有品牌名。"
 set_run(r, 12, SUB, False)
-footer(s, 7)
+footer(s, 8)
 
-# ---------------- S8 5家定位 ----------------
+# ---------------- S9 5家定位 ----------------
 s = add_slide()
 header(s, "METHOD · 定位", "5 家上市公司落在哪里 + 三种原型")
 rows = [
@@ -248,9 +267,9 @@ _, tf4 = tb(s, Inches(0.7), Inches(6.6), Inches(12), Inches(0.7))
 p4 = tf4.paragraphs[0]; r4 = p4.add_run()
 r4.text = "我的经历：上一家公司 1000+ SKU 按规格矩阵做全 —— 第三种路径“目录式长尾品牌”。"
 set_run(r4, 12.5, AMBER, True)
-footer(s, 8)
+footer(s, 9)
 
-# ---------------- S9 市场 ----------------
+# ---------------- S10 市场 ----------------
 s = add_slide()
 header(s, "FINDING ③ · 市场", "欧洲毛利更高，但天花板与本地化门槛并存")
 bullets(s, [
@@ -261,9 +280,9 @@ bullets(s, [
     ("判断：美国走规模、欧洲赚毛利；先单点跑通再复制", 0, True),
 ], w=6.2, size=15)
 pic(s, FIG / "m3_revenue.png", 7.1, 2.3, 5.6)
-footer(s, 9)
+footer(s, 10)
 
-# ---------------- S10 现金流 ----------------
+# ---------------- S11 现金流 ----------------
 s = add_slide()
 header(s, "FINDING ④ · 现金流", "利润 ≠ 现金：安克 2025 的“有利润没现金”")
 bullets(s, [
@@ -274,9 +293,9 @@ bullets(s, [
     ("结论：规模扩张期，经营现金流才是生命线", 1, False),
 ], w=6.2, size=15)
 pic(s, FIG / "m3b_anker_cashflow.png", 7.1, 2.3, 5.6)
-footer(s, 10)
+footer(s, 11)
 
-# ---------------- S11 验证 ----------------
+# ---------------- S12 验证 ----------------
 s = add_slide()
 header(s, "VALIDATION · 验证", "结论之前，我先做三件事")
 bullets(s, [
@@ -285,9 +304,9 @@ bullets(s, [
     ("③ 主动声明局限：上市公司是幸存者（幸存者偏差）；欧美细分只有致欧披露；吉宏含包装需看分部", 0, False),
     ("结论只到证据能到的地方：安克备货是主动还是被动？→ 标“待年报附注确认”，不下定论", 0, True),
 ], size=16)
-footer(s, 11)
+footer(s, 12)
 
-# ---------------- S12 结论 ----------------
+# ---------------- S13 结论 ----------------
 s = add_slide()
 header(s, "CONCLUSION · 结论", "四个可以带走、也能被追问的判断")
 concl = [
@@ -308,9 +327,9 @@ for k, v in concl:
     r2 = p2.add_run(); r2.text = v
     set_run(r2, 15.5, INK, False)
     y += 1.13
-footer(s, 12)
+footer(s, 13)
 
-# ---------------- S13 工具 ----------------
+# ---------------- S14 工具 ----------------
 s = add_slide()
 header(s, "PRODUCTIZE · 落地", "把结论做成能用的工具：创业决策工作台")
 tools = [
@@ -334,9 +353,9 @@ _, tfx = tb(s, Inches(0.7), Inches(6.7), Inches(12), Inches(0.5))
 px = tfx.paragraphs[0]; rx = px.add_run()
 rx.text = "从“看报表”到“能决策”：每一页都基于 5 家公司的真实财务基准"
 set_run(rx, 12.5, AMBER, True)
-footer(s, 13)
+footer(s, 14)
 
-# ---------------- S14 复盘 ----------------
+# ---------------- S15 复盘 ----------------
 s = add_slide()
 header(s, "REFLECTION · 复盘", "做得好的 & 下次能更好的")
 bullets(s, [
@@ -345,9 +364,9 @@ bullets(s, [
     ("如果重来：会更早看现金流量表；先用少量行业访谈补定性，再用数据验证定量", 0, True),
     ("可迁移：这套“提问 → 取数 → 验证 → 结论 → 工具化”的流程，适用于任何行业研究 / 商业分析", 0, False),
 ], size=16)
-footer(s, 14)
+footer(s, 15)
 
-# ---------------- S15 收尾 ----------------
+# ---------------- S16 收尾 ----------------
 s = add_slide()
 rect(s, Inches(0), Inches(0), Inches(0.22), prs.slide_height, ACCENT)
 _, tf = tb(s, Inches(1.2), Inches(2.2), Inches(11), Inches(3.4))
