@@ -178,7 +178,7 @@ def page_overview():
     hero = """<div style="background:linear-gradient(135deg,#FFFFFF 0%,#F4EFE4 100%);border:1px solid #EAE2D3;border-radius:18px;padding:26px 30px;margin-bottom:16px;box-shadow:0 4px 14px rgba(35,39,46,.06);">
       <div style="font-size:12px;color:#8A8178;font-weight:700;letter-spacing:1.5px;">XUEFEI WANG · 2026 · DATA / BUSINESS ANALYSIS</div>
       <div style="font-size:32px;font-weight:900;color:#23272E;margin-top:8px;">跨境电商创业决策工作台</div>
-      <div style="color:#6E675E;font-size:15px;margin-top:10px;max-width:840px;line-height:1.75;">从一线运营的困惑出发，用 5 家上市公司公开财报把“单品盈利却整体不赚钱”拆成可验证的问题，再落成 <b>4 个可直接上手用的决策工具</b>。完整论证与结论在 PPT。</div>
+      <div style="color:#6E675E;font-size:15px;margin-top:10px;max-width:840px;line-height:1.75;">围绕“跨境电商公司怎么赚钱、怎么走得长远”，用 5 家上市公司公开财报把利润结构与现金流拆成可验证的问题，再落成 <b>4 个可直接上手用的决策工具</b>。完整论证与结论在 PPT。</div>
       <div style="margin-top:16px;">
         <span style="background:#E7F0EC;color:#0F6B5C;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;margin-right:6px;">公开财报 · 可复核</span>
         <span style="background:#F7E9DA;color:#B45309;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;margin-right:6px;">5 家上市公司基准</span>
