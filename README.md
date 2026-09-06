@@ -2,6 +2,14 @@
 
 这个项目源于我上一份工作的一个困惑。我在一家做自有品牌出海的公司做亚马逊运营，卖阀门/管件、实验室仪器、封口机这类偏专业的产品，在售 SKU 超过 1000 个。单看每个 SKU 都能盈利，公司整体却没以前那么赚钱了。为了搞清楚利润是被平台佣金、仓储和广告成本吃掉，还是多 SKU 长尾的打法本身有问题，我基于 5 家中国跨境电商 A 股上市公司（安克创新、致欧科技、赛维时代、华凯易佰、吉宏股份）的公开财报，构建“宏观行业 → 公司对比 → 现金流验证”的分析框架，对比品牌、铺货与目录式长尾三种打法，以及市场与渠道的选择。
 
+## 对外作品集（一页门户）
+
+把 PPT + Demo + 文档收在一个入口：**https://ashely-sudo.github.io/cross-border-analysis/**（GitHub Pages）
+
+- 📊 项目故事 PPT（13 页）：在线预览（Office 网页版）或下载 `cross-border-story-v2.pptx`
+- 🧭 在线决策工具 Demo：https://cross-border-analysis-w42yqftvzzhsyleappvj6py.streamlit.app/
+- 📚 项目文档：`docs/`（01 方案书 / 02 手把手教学 / 03 工作台手册 / 04 商业问题思考）
+
 ## 数据与方法
 - 数据：上市公司年报（akshare 采集，东方财富/新浪源，已与公开报道抽查核对）+ 海关总署/行业公开统计；**全部为公开合规数据，无爬取**。
 - 方法：自上而下（行业规模）+ 自下而上（公司加总）交叉验证；盈利质量看毛利率/销售费用率/净利率/OCF；经营健康看存货与现金流调节表。
@@ -15,9 +23,13 @@
 ## 目录结构
 ```
 cross-border-analysis/
+├── index.html               # 一页作品集门户（GitHub Pages 入口）
+├── cross-border-story-v2.pptx  # 项目故事 PPT（定稿 13 页）
 ├── data/                    # 采集数据（raw/ 原始，consolidated/ 合并）
+├── docs/                    # 对外文档：01 方案书 / 02 手把手教学 / 03 工作台手册 / 04 商业问题思考
 ├── scripts/                 # fetch_financials.py(M1)、m3_company_analysis.py、m3b_anker_cashflow.py
 ├── reports/                 # 00 数据字典 / 01 年报预览 / 02 公司对比 / 03 现金流深挖 / 04 宏观 / 05 结论
+├── streamlit_app/           # 创业决策工作台（P1-P4）
 └── README.md
 ```
 
