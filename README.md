@@ -8,7 +8,7 @@
 
 - 📊 项目故事 PPT（13 页）：在线预览（Office 网页版）或下载 `cross-border-story-v2.pptx`
 - 🧭 在线决策工具 Demo：https://cross-border-analysis-w42yqftvzzhsyleappvj6py.streamlit.app/
-- 📚 项目文档：`docs/`（01 方案书 / 02 手把手教学 / 03 工作台手册 / 04 商业问题思考）
+- 📚 项目文档：`docs/`（01 项目总览 / 02 数据与方法口径 / 03 核心结论与商业思考 / 04 决策工作台说明）
 
 ## 数据与方法
 - 数据：上市公司年报（akshare 采集，东方财富/新浪源，已与公开报道抽查核对）+ 海关总署/行业公开统计；**全部为公开合规数据，无爬取**。
@@ -26,7 +26,7 @@ cross-border-analysis/
 ├── index.html               # 一页作品集门户（GitHub Pages 入口）
 ├── cross-border-story-v2.pptx  # 项目故事 PPT（定稿 13 页）
 ├── data/                    # 采集数据（raw/ 原始，consolidated/ 合并）
-├── docs/                    # 对外文档：01 方案书 / 02 手把手教学 / 03 工作台手册 / 04 商业问题思考
+├── docs/                    # 对外文档：01 项目总览 / 02 数据与方法口径 / 03 核心结论与商业思考 / 04 决策工作台说明
 ├── scripts/                 # fetch_financials.py(M1)、m3_company_analysis.py、m3b_anker_cashflow.py
 ├── reports/                 # 00 数据字典 / 01 年报预览 / 02 公司对比 / 03 现金流深挖 / 04 宏观 / 05 结论
 ├── streamlit_app/           # 创业决策工作台（P1-P4）
