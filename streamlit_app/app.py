@@ -25,7 +25,7 @@ from pathlib import Path
 st.set_page_config(page_title="跨境电商创业决策工作台", page_icon="🧭", layout="wide")
 
 BASE = Path(__file__).resolve().parents[1]
-PPT_URL = "https://docs.qq.com/slide/DWmxaZEhsTkN1ZFZh"
+PPT_URL = "https://docs.qq.com/slide/DWnFSTVpNdVRucUxs"
 
 # =====================================================================
 # 共享数据（基于 B1 项目真实计算；采集 2026-09-06）
