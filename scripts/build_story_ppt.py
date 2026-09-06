@@ -128,7 +128,7 @@ r3 = p3.add_run(); r3.text = "5 家上市公司 · 精品 vs 铺货 · 现金流
 set_run(r3, 13.5, ACCENT)
 rect(s, Inches(1.0), Inches(4.05), Inches(1.5), Inches(0.045), AMBER)
 _, tf4 = tb(s, Inches(1.0), Inches(6.1), Inches(11), Inches(1.0))
-for i, t in enumerate(["Xuefei Wang  ·  数据分析 / 商业分析 / 产品方向", "2026 秋招  ·  项目叙事版"]):
+for i, t in enumerate(["Xuefei Wang  ·  数据分析 / 商业分析 / 产品方向", "2026  ·  项目叙事版"]):
     pp = tf4.paragraphs[0] if i == 0 else tf4.add_paragraph()
     pp.space_after = Pt(4)
     rr = pp.add_run(); rr.text = t
