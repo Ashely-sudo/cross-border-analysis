@@ -24,6 +24,33 @@ from pathlib import Path
 
 st.set_page_config(page_title="跨境电商创业决策工作台", page_icon="🧭", layout="wide")
 
+# ---------- 主题：暖色高级工作台（彩色、避开蓝色） ----------
+TEAL = "#0F6B5C"; AMBER = "#B45309"; VIOLET = "#6D28D9"; RUST = "#C2410C"; ROSE = "#9F1239"
+INK = "#23272E"; MUTED = "#8A8178"; PAPER = "#F7F5F0"; CARD_LINE = "#EAE2D3"
+MOD_COLORS = {
+    "🧮 P1 单位经济测算": AMBER,
+    "🧭 P2 选品类助手": VIOLET,
+    "🌍 P3 市场选择器": RUST,
+    "🩺 P4 经营健康体检": TEAL,
+}
+px.defaults.template = "plotly_white"
+px.defaults.color_discrete_sequence = [TEAL, AMBER, VIOLET, RUST, ROSE]
+GLOBAL_CSS = """
+<style>
+.stApp { background-color: #F7F5F0; }
+[data-testid="stSidebar"] { background-color: #EFE9DC; }
+html, body, [class*="css"] { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+h1, h2, h3, h4 { color: #23272E; }
+[data-testid="stCaptionContainer"] p { color: #8A8178; }
+[data-testid="stHeader"] { background: transparent; }
+div[data-testid="stLinkButton"] a { background: linear-gradient(135deg, #0F6B5C, #0E5A4F); color: #FFFFFF !important; border: none; border-radius: 10px; font-weight: 600; }
+div[data-testid="stLinkButton"] a:hover { color: #FFFFFF !important; opacity: .92; }
+.stButton > button { background: linear-gradient(135deg, #23272E, #3A414B); color: #FFFFFF; border: none; border-radius: 10px; font-weight: 600; }
+.stButton > button:hover { color: #FFFFFF; opacity: .92; }
+</style>
+"""
+st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
+
 BASE = Path(__file__).resolve().parents[1]
 PPT_URL = "https://docs.qq.com/slide/DWnFSTVpNdVRucUxs"
 
@@ -31,17 +58,20 @@ PPT_URL = "https://docs.qq.com/slide/DWnFSTVpNdVRucUxs"
 # 共享数据（基于 B1 项目真实计算；采集 2026-09-06）
 # =====================================================================
 REFERRAL_PRESETS = {
-    "工业品/工具/多数品类（约15%）": 15.0,
-    "家居家具（约15%）": 15.0,
-    "消费电子配件（约15%）": 15.0,
-    "服饰（约17%）": 17.0,
-    "珠宝（约20%）": 20.0,
+    "工业品 & 科研用品（Business, Industrial & Scientific，12%）": 12.0,
+    "工具 & 家装（Tools & Home Improvement，15%）": 15.0,
+    "家居厨房（Home & Kitchen，15%）": 15.0,
+    "消费电子（Consumer Electronics，8%）": 8.0,
+    "电子配件（Electronics Accessories，15% ≤$100）": 15.0,
+    "服饰（Clothing，>$20 为 17%）": 17.0,
+    "珠宝（Jewelry，≤$250 为 20%）": 20.0,
     "自定义": None,
 }
 FBA_HINTS = {
-    "小件标准 <1 lb（约$3.0-4.0）": 3.5,
-    "标准件 1-2 lb（约$4.5-6.0）": 5.0,
-    "大件/超重（约$8.0 起）": 8.0,
+    "小号标准 ≤1 lb（约$3.3–4.0）": 3.7,
+    "大号标准 1–2 lb（约$4.6–5.8）": 5.2,
+    "大号标准 2–3 lb（约$5.8–6.7）": 6.3,
+    "大号标准 >3 lb（$6.97 起，每 4oz +$0.08）": 7.2,
     "自定义": None,
 }
 
@@ -100,52 +130,76 @@ def metric_row(label, user_val, median):
     return {"指标": label, "你的值": round(user_val, 1), "5家基准(中位数)": round(median, 1), "对比": arrow}
 
 
-# =====================================================================
-# 页面
-# =====================================================================
+# ---------- 卡片辅助（单行 HTML，浅底/白底 + 彩色侧条；单行避免被 Markdown 当成代码块） ----------
+def info_card(title, body, accent=TEAL, value=None):
+    value_html = ""
+    if value is not None:
+        value_html = "<div style='font-size:26px;font-weight:800;color:#23272E;margin:6px 0 2px;'>" + value + "</div>"
+    html = ("<div style='background:linear-gradient(180deg,#FFFFFF,#FBF7EF);border:1px solid #EAE2D3;"
+            "border-left:5px solid " + accent + ";border-radius:14px;padding:14px 18px;"
+            "box-shadow:0 2px 6px rgba(35,39,46,.05);'>"
+            "<div style='font-weight:800;color:#23272E;font-size:16px;'>" + title + "</div>" + value_html +
+            "<div style='color:#8A8178;font-size:13.5px;margin-top:4px;line-height:1.6;'>" + body + "</div></div>")
+    return html
+
+
+def metric_block(label, value, delta=None, help=None, accent=AMBER):
+    delta_html = ""
+    if delta is not None:
+        dcolor = "#2E7D5B" if str(delta).startswith("+") else ("#C2410C" if str(delta).startswith("-") else "#8A8178")
+        delta_html = "<div style='font-size:13px;color:" + dcolor + ";margin-top:2px;'>" + str(delta) + "</div>"
+    help_html = ""
+    if help:
+        help_html = "<div style='font-size:12px;color:#A69E93;margin-top:4px;line-height:1.4;'>" + help + "</div>"
+    html = ("<div style='background:linear-gradient(180deg,#FFFFFF,#FBF7EF);border:1px solid #EAE2D3;"
+            "border-top:4px solid " + accent + ";border-radius:14px;padding:14px 16px;"
+            "box-shadow:0 1px 3px rgba(35,39,46,.05);'>"
+            "<div style='color:#8A8178;font-size:13px;'>" + label + "</div>"
+            "<div style='font-size:26px;font-weight:800;color:#23272E;margin:4px 0 2px;'>" + value + "</div>"
+            + delta_html + help_html + "</div>")
+    return html
+
+
+PAGES = [
+    "🧮 P1 单位经济测算",
+    "🧭 P2 选品类助手",
+    "🌍 P3 市场选择器",
+    "🩺 P4 经营健康体检",
+]
+PAGE_DESC = {
+    "🧮 P1 单位经济测算": "这件货到底赚不赚钱：定价 / ACOS 盈亏平衡 / Case Pack 整箱对比。",
+    "🧭 P2 选品类助手": "按单位经济 + 风险清单判断：这个品类能不能做、要不要先小批量验证。",
+    "🌍 P3 市场选择器": "把六个维度按你的盘子加权，选先做美国 / 欧洲 / 日本 / 东南亚。",
+    "🩺 P4 经营健康体检": "输入你的指标，对标 5 家上市公司基准，输出危险信号与转型建议。",
+}
+
+
 def page_overview():
-    st.title("🌐 中国跨境电商出海赛道分析 · 作品集")
-    st.caption("Xuefei Wang · 数据分析 / 商业分析 / 产品方向 · 2026 秋招")
-    st.markdown(
-        "从亚马逊一线运营的真实困惑出发，用公开财报做的一次行业级验证，"
-        "并把结论做成了可用的决策工具。以下三个入口指向同一个项目的不同侧面。")
+    hero = """<div style="background:linear-gradient(135deg,#FFFFFF 0%,#F4EFE4 100%);border:1px solid #EAE2D3;border-radius:18px;padding:26px 30px;margin-bottom:16px;box-shadow:0 4px 14px rgba(35,39,46,.06);">
+      <div style="font-size:12px;color:#8A8178;font-weight:700;letter-spacing:1.5px;">XUEFEI WANG · 2026 · DATA / BUSINESS ANALYSIS</div>
+      <div style="font-size:32px;font-weight:900;color:#23272E;margin-top:8px;">跨境电商创业决策工作台</div>
+      <div style="color:#6E675E;font-size:15px;margin-top:10px;max-width:840px;line-height:1.75;">从一线运营的困惑出发，用 5 家上市公司公开财报把“单品盈利却整体不赚钱”拆成可验证的问题，再落成 <b>4 个可直接上手用的决策工具</b>。完整论证与结论在 PPT。</div>
+      <div style="margin-top:16px;">
+        <span style="background:#E7F0EC;color:#0F6B5C;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;margin-right:6px;">公开财报 · 可复核</span>
+        <span style="background:#F7E9DA;color:#B45309;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;margin-right:6px;">5 家上市公司基准</span>
+        <span style="background:#EFE8F6;color:#6D28D9;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;margin-right:6px;">海关官方宏观</span>
+        <span style="background:#FBEAE2;color:#C2410C;font-size:12px;font-weight:600;border-radius:20px;padding:4px 12px;">结论见 13 页 PPT</span>
+      </div>
+    </div>"""
+    st.markdown(hero, unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("**📊 项目故事 PPT**\n\n我的问题、分析、验证、结论与复盘（13 页图文叙事）。")
-        st.link_button("打开 PPT（腾讯文档）", PPT_URL, width="stretch")
-    with c2:
-        st.markdown("**🧭 在线决策工具（就是本页）**\n\nP1 算账 · P2 选品类 · P3 市场 · P4 经营体检——用左侧导航体验。")
-        st.markdown("核心图表摘要见下方。")
-    with c3:
-        st.markdown("**📈 分析与数据**\n\n宏观 → 公司对比 → 现金流深挖，口径与局限全部记录在案。")
-        st.markdown("数据与脚本为私有，面试时可现场演示。")
-
-    st.divider()
-    st.markdown("### 核心发现（30 秒速读）")
-    st.markdown("""
-1. **销售费用率是模式分水岭**：安克 22.4%（净利率 8.3%）vs 赛维 35.4%（净利率 2.4%）→ 毛利率高 ≠ 赚钱；
-2. **欧洲毛利更高、增长更慢**：致欧欧洲毛利率 36.4% > 美加 30.3%，本地化是隐形门槛；
-3. **利润 ≠ 现金**：安克 2025 净利 25.5 亿但经营现金流仅 4.8 亿，存货 + 应收占住现金；
-4. **行业高度分散**：5 家龙头合计仅约占出口额 2.9% → 细分做深是中小卖家的路。
-""")
-
-    figs = [
-        (BASE / "reports" / "figures" / "m3_margin_2025.png", "模式对比：毛利率 vs 净利率（2025）"),
-        (BASE / "reports" / "figures" / "m3b_anker_cashflow.png", "现金流深挖：安克 净利 vs 经营现金流"),
-        (BASE / "reports" / "figures" / "m2_market_size.png", "宏观：中国跨境电商进出口规模"),
-    ]
-    cols = st.columns(3)
-    for col, (fp, cap) in zip(cols, figs):
-        if fp.exists():
-            col.image(str(fp), caption=cap, width=340)
-
-    st.divider()
-    with st.expander("⚠️ 数据边界（诚实声明）"):
-        st.markdown("公开数据能给出基准、可行性、风险信号与转型阈值；具体品类需求热度、供应商报价属于私有数据，"
-                    "工具会明确提示需补充什么。上市公司存在幸存者偏差，结论只到证据能到的地方。")
-    st.caption("联系与更多材料见简历 · 本项目代码与分析全程由本人完成（基于公开财报与官方统计）")
-
+    st.markdown("### 工作台模块")
+    st.caption("点下方任一模块进入，或用左侧导航切换。")
+    cols = st.columns(2)
+    mod_accent = [AMBER, VIOLET, RUST, TEAL]
+    for i, key in enumerate(PAGES):
+        with cols[i % 2]:
+            st.markdown(info_card(key, PAGE_DESC[key], mod_accent[i]), unsafe_allow_html=True)
+            if st.button("进入模块 →", key="go_" + key, width="stretch"):
+                st.session_state["nav"] = key
+                st.rerun()
+    st.markdown("---")
+    st.caption("📄 完整论证与结论见 [13 页项目故事 PPT](%s) ｜ 数据版本：2026-09 · 5 家上市公司 2025 年报 + 海关官方统计，口径与局限见 PPT。" % PPT_URL)
 
 def _ui_calc_inputs(title, key):
     st.subheader(title)
@@ -167,12 +221,73 @@ def _ui_calc_inputs(title, key):
 
 
 def _show_result(r, name):
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric(f"{name} · 单位净利 (USD)", f"{r['net']:.2f}", delta=f"{r['net_pct']:.1f}% 净利率")
-    m2.metric("盈亏平衡 ACOS %", f"{max(r['be_acos'], 0):.1f}", help="超过该 ACOS 即亏损")
-    m3.metric("平台+广告占售价", f"{r['fees']/r['price']*100:.1f}%",
-              help=f"佣金 {r['referr']:.2f} + FBA {r['fba']:.2f} + 广告 {r['ad']:.2f}")
-    m4.metric("广告前利润 (USD)", f"{r['gross_before_ad']:.2f}")
+    cards = [
+        (f"{name} · 单位净利 (USD)", f"{r['net']:.2f}",
+         f"{r['net_pct']:.1f}%", "净利率"),
+        ("盈亏平衡 ACOS %", f"{max(r['be_acos'], 0):.1f}", None, "超过该 ACOS 即亏损"),
+        ("平台+广告占售价", f"{r['fees']/r['price']*100:.1f}%", None,
+         f"佣金 {r['referr']:.2f} + FBA {r['fba']:.2f} + 广告 {r['ad']:.2f}"),
+        ("广告前利润 (USD)", f"{r['gross_before_ad']:.2f}", None, "扣佣金/FBA、未扣广告"),
+    ]
+    cols = st.columns(4)
+    for col, (lab, val, delta, help_) in zip(cols, cards):
+        col.markdown(metric_block(lab, val, delta, help_), unsafe_allow_html=True)
+
+
+# ---------- 2026 美国 FBA 运费引擎（非服装·标准件；口径：2026-07，非旺季 $10–$50 主表 + 价档调整） ----------
+_FBA_SMALL = [(2, 3.32), (4, 3.42), (6, 3.45), (8, 3.54), (10, 3.68), (12, 3.78), (14, 3.91), (16, 3.96)]
+_FBA_LARGE = [(4, 3.73), (8, 3.95), (12, 4.20), (16, 4.60), (20, 5.04), (24, 5.42), (28, 5.57), (32, 5.82),
+              (36, 5.92), (40, 6.10), (44, 6.26), (48, 6.67)]
+_FBA_SMALL_LOW = [(2, 2.43), (4, 2.49), (6, 2.56), (8, 2.66), (10, 2.77), (12, 2.82), (14, 2.92), (16, 2.95)]
+_FBA_LARGE_LOW = [(4, 2.91), (8, 3.13), (12, 3.38), (16, 3.78), (20, 4.22), (24, 4.60), (28, 4.75), (32, 5.00),
+                  (36, 5.10), (40, 5.28), (44, 5.44), (48, 5.85)]
+
+
+def _band_fee(table_oz, weight_oz, over3_base):
+    for max_oz, fee in table_oz:
+        if weight_oz <= max_oz:
+            return fee
+    # 超过 3 lb（48 oz）：按每多 4 oz +0.08 递增
+    extra = max(0.0, weight_oz - 48.0)
+    return over3_base + (extra / 4.0) * 0.08
+
+
+def fba_fee_2026(dims_in, wt_lb, price_band="10_50"):
+    """dims_in=(L,W,H) 英寸; wt_lb=实际重量; 返回 (tier, 计费重量lb, 运费USD 或 None)"""
+    L, W, H = dims_in
+    d = sorted([L, W, H], reverse=True)  # 长>=宽>=高
+    dim_wt = L * W * H / 139.0
+    ship = max(wt_lb, dim_wt)
+    oz = ship * 16.0
+    # 尺寸带
+    if wt_lb <= 1.0 and L <= 15.0 and W <= 12.0 and H <= 0.75:
+        tier = "小号标准"
+    elif wt_lb <= 20.0 and d[0] <= 18.0 and d[1] <= 14.0 and d[2] <= 8.0:
+        tier = "大号标准"
+    else:
+        return ("超规/大件（超出标准，请用亚马逊官方计算器精算）", ship, None)
+    low = price_band == "lt10"
+    if tier == "小号标准":
+        fee = _band_fee(_FBA_SMALL_LOW if low else _FBA_SMALL, min(oz, 16.0), None)
+    else:
+        fee = _band_fee(_FBA_LARGE_LOW if low else _FBA_LARGE, min(oz, 48.0) if ship <= 3.0 else oz,
+                        2.43 if False else (6.15 if low else 6.97))
+        if low:
+            pass
+    if price_band == "gt50":
+        fee = None if fee is None else fee + 0.26
+    return (tier, round(ship, 2), round(fee, 2) if fee is not None else None)
+
+
+def abs_discount(n_units):
+    """Amazon Bulk Services 佣金折扣：2-9:15% off, 10-23:20% off, 24+:25% off"""
+    if n_units >= 24:
+        return 0.25
+    if n_units >= 10:
+        return 0.20
+    if n_units >= 2:
+        return 0.15
+    return 0.0
 
 
 def page_calc():
@@ -186,38 +301,125 @@ def page_calc():
         with c1:
             acos_range = np.arange(0, 81, 1)
             nets = [calc(*pa[:6], ac)["net"] for ac in acos_range]
-            fig = go.Figure(go.Scatter(x=acos_range, y=nets, mode="lines"))
-            fig.add_hline(y=0, line_dash="dash", line_color="red")
+            fig = go.Figure(go.Scatter(x=acos_range, y=nets, mode="lines", line=dict(color=AMBER, width=3)))
+            fig.add_hline(y=0, line_dash="dash", line_color="#C2410C")
             fig.update_layout(xaxis_title="广告 ACOS %", yaxis_title="单位净利 (USD)",
-                              title="单位净利 vs ACOS", height=330, margin=dict(t=40, b=10))
+                              title="单位净利 vs 广告 ACOS",
+                              title_font_size=15, height=340,
+                              margin=dict(t=52, b=10, l=8, r=8), font=dict(color=INK))
             st.plotly_chart(fig, width="stretch", key="sens_a")
         with c2:
-            st.subheader("售价拆解（USD，示意）")
             share = pd.DataFrame({
                 "项目": ["采购成本(60%)", "头程+其他", "平台佣金", "FBA配送", "广告", "单位净利"],
                 "金额": [pa[1]*0.6, pa[1]*0.4 + pa[2] + pa[3], r["referr"], r["fba"], r["ad"], r["net"]]})
-            fig = go.Figure(go.Bar(x=share["项目"], y=share["金额"],
-                                   marker_color=["#8ecae6"]*5 + ["#2a9d8f"]))
-            fig.update_layout(height=330, margin=dict(t=10, b=10), showlegend=False, yaxis_title="USD")
+            palette2 = ["#C7B299", "#B29A7C", "#9A8161", "#C05746", "#7A6A8F", "#0F6B5C"]
+            fig = go.Figure(go.Bar(x=share["项目"], y=share["金额"], marker_color=palette2))
+            fig.update_layout(title="售价拆解（USD）", title_font_size=15, height=340,
+                              margin=dict(t=52, b=10, l=8, r=8), showlegend=False,
+                              yaxis_title="USD", font=dict(color=INK))
             st.plotly_chart(fig, width="stretch", key="bar_a")
     with tab2:
-        st.markdown("**用法**：A=零售散卖；B=整箱/Case Pack（单价改成 8 折、单件 FBA/广告调低）→ 看 ROI 是否成立。")
-        ca1, cb1 = st.columns(2)
-        with ca1:
-            pa = _ui_calc_inputs("方案 A（散卖）", "a2")
-        with cb1:
-            pb = _ui_calc_inputs("方案 B（整箱/Case Pack）", "b2")
-        ra, rb = calc(*pa), calc(*pb)
-        cA, cB = st.columns(2)
-        with cA:
-            _show_result(ra, "方案 A")
-        with cB:
-            _show_result(rb, "方案 B")
-        d = rb["net"] - ra["net"]
-        st.metric("方案 B − 方案 A 单位净利差 (USD)", f"{d:+.2f}", help=">0 表示整箱更划算")
-        if ra["net"] > 0 and abs(pa[0]-pb[0]) > 0.01:
-            st.markdown(f"当前：单价从 ${pa[0]:.0f} 调到 ${pb[0]:.0f}，单件净利变化 {d:+.2f} USD —— "
-                        "这就是判断“降单价、提 ROI”是否成立的入口。")
+        st.markdown("**Case Pack 整箱 vs 散卖**：输入单件成本/售价与箱数，工具自动算整箱总账；"
+                    "运费按 2026 美国 FBA 费率自动判断尺寸带，广告按售价 15% 计，佣金按品类并可叠加批量佣金折扣。")
+        top = st.columns([1, 1, 1.1])
+        with top[0]:
+            unit_cost_rmb = st.number_input("单件采购成本（人民币）", 0.0, 1e6, 60.0, step=1.0, key="cp_cost")
+            unit_price_usd = st.number_input("单件售价（美元）", 0.0, 1e6, 25.0, step=0.5, key="cp_price")
+            n_units = st.number_input("每箱件数", 1, 500, 10, step=1, key="cp_n")
+            fx = st.number_input("汇率（CNY/USD）", 1.0, 20.0, 7.2, step=0.1, key="cp_fx")
+        with top[1]:
+            ref_choice = st.selectbox("品类佣金率", list(REFERRAL_PRESETS), index=0, key="cp_ref")
+            ref_pct = REFERRAL_PRESETS[ref_choice] if REFERRAL_PRESETS[ref_choice] else st.number_input(
+                "自定义佣金率 %", 0.0, 50.0, 15.0, key="cp_refc")
+            use_abs = st.checkbox("参与批量销售佣金折扣（Amazon Bulk Services）", value=True, key="cp_abs",
+                                  help="官方口径：2-9件减15%、10-23件减20%、24件+减25%。还需同时满足：整箱售价>$20，且（件数≥10 或 体积≥1400 in³ 或 重量≥35 lb）；卖家须为品牌注册授权方。工具会按下方的整箱尺寸自动判断是否达标。")
+            price_band = st.selectbox("FBA 价档", ["lt10", "10_50", "gt50"], index=1, key="cp_band",
+                                      format_func=lambda x: {"lt10": "<$10", "10_50": "$10–50", "gt50": ">$50"}[x])
+        with top[2]:
+            st.markdown("**整箱售价调整**")
+            case_disc = st.slider("整箱再打折（%）", 0, 50, 20, key="cp_disc",
+                                  help="例如 20 = 整箱总价打 8 折")
+            rounding = st.selectbox("取整方式", ["不取整", "取整到整数美元", "取整到 .99"], index=0, key="cp_round")
+
+        st.markdown("#### 尺寸与重量（inch / lb）")
+        dims = st.columns(4)
+        with dims[0]:
+            sL = st.number_input("单件 长(in)", 0.1, 60.0, 8.0, key="cp_sL")
+            sW = st.number_input("单件 宽(in)", 0.1, 60.0, 6.0, key="cp_sW")
+            sH = st.number_input("单件 高(in)", 0.1, 60.0, 4.0, key="cp_sH")
+            sWt = st.number_input("单件 重(lb)", 0.01, 200.0, 1.2, key="cp_sWt")
+        with dims[1]:
+            cL = st.number_input("整箱 长(in)", 0.1, 120.0, 12.0, key="cp_cL")
+            cW = st.number_input("整箱 宽(in)", 0.1, 120.0, 10.0, key="cp_cW")
+            cH = st.number_input("整箱 高(in)", 0.1, 120.0, 8.0, key="cp_cH")
+            cWt = st.number_input("整箱 重(lb)", 0.1, 300.0, 13.0, key="cp_cWt")
+        with dims[2]:
+            st.caption("单件运费由【单件尺寸/重量】判断；整箱运费由【整箱尺寸/重量】判断。")
+            st.caption("计费重量 = max(实际重量, 长×宽×高 ÷ 139)。")
+        with dims[3]:
+            pass
+
+        n = int(n_units)
+        gross_case = unit_price_usd * n * (1 - case_disc / 100.0)
+        if rounding == "取整到整数美元":
+            gross_case = float(round(gross_case))
+        elif rounding == "取整到 .99":
+            gross_case = float(int(gross_case)) + 0.99
+
+        # 批量折扣资格：整箱售价>$20 且（件数≥10 或 体积≥1400in³ 或 重量≥35lb）
+        case_vol = cL * cW * cH
+        abs_ok = (gross_case > 20.0) and (n >= 10 or case_vol >= 1400.0 or cWt >= 35.0)
+        abs_eligible_note = ""
+        if use_abs and n >= 2 and not abs_ok:
+            abs_eligible_note = ("｜ ⚠️ 本箱不满足官方批量折扣条件（需整箱售价>$20，且件数≥10 "
+                                 "或体积≥1400 in³ 或重量≥35 lb），故未应用折扣，请核对。")
+
+        # 散卖
+        tier_s, ship_s, fba_s = fba_fee_2026((sL, sW, sH), sWt, price_band)
+        ref_s = unit_price_usd * ref_pct / 100.0
+        ad_s = unit_price_usd * 0.15
+        fee_s = (0 if fba_s is None else fba_s) + ref_s + ad_s
+        net_s_usd = unit_price_usd - fee_s
+        profit_s_rmb = net_s_usd * fx - unit_cost_rmb
+        roi_s = profit_s_rmb / unit_cost_rmb * 100 if unit_cost_rmb else 0
+
+        # 整箱
+        tier_c, ship_c, fba_c = fba_fee_2026((cL, cW, cH), cWt, price_band)
+        abs_d = abs_discount(n) if (use_abs and n >= 2 and abs_ok) else 0.0
+        ref_c_total = gross_case * ref_pct / 100.0 * (1 - abs_d)
+        ad_c_total = gross_case * 0.15
+        fba_c_total = 0 if fba_c is None else fba_c
+        fee_c_total = ref_c_total + ad_c_total + fba_c_total
+        net_c_usd = gross_case - fee_c_total
+        profit_c_rmb = net_c_usd * fx - unit_cost_rmb * n
+        roi_c = profit_c_rmb / (unit_cost_rmb * n) * 100 if (unit_cost_rmb * n) else 0
+        per_c = net_c_usd / n
+
+        st.markdown("#### 对比结果")
+        colA, colB, colC = st.columns(3)
+        colA.markdown(metric_block("散卖 · 单件 ROI", f"{roi_s:.1f}%",
+                                   f"净利 {profit_s_rmb:+.2f} RMB", f"单件净利 ${net_s_usd:.2f} USD"), unsafe_allow_html=True)
+        colB.markdown(metric_block("Case Pack · 整箱 ROI", f"{roi_c:.1f}%",
+                                   f"净利 {profit_c_rmb:+.2f} RMB", f"整箱净利 ${net_c_usd:.2f} USD"), unsafe_allow_html=True)
+        colC.markdown(metric_block("Case Pack 每件净利", f"${per_c:.2f}",
+                                   f"vs 散卖单件 {net_s_usd:.2f}",
+                                   f"整箱总售价 ${gross_case:.2f}（{n}件，每件${gross_case/n:.2f}）｜ "
+                                   f"整箱总成本 ¥{unit_cost_rmb * n:.0f}（{n}件 × ¥{unit_cost_rmb:.0f}）"), unsafe_allow_html=True)
+
+        st.markdown("#### 费用拆解（USD）")
+        detail = pd.DataFrame({
+            "项目": ["售价（总）", "平台佣金（总）", "广告 15%（总）", "FBA 配送费（整包）", "费用合计", "净利（总）"],
+            "散卖（每件）": [round(unit_price_usd, 2), round(ref_s, 2), round(ad_s, 2), round(0 if fba_s is None else fba_s, 2),
+                          round(fee_s, 2), round(net_s_usd, 2)],
+            "Case Pack（整箱）": [round(gross_case, 2), round(ref_c_total, 2), round(ad_c_total, 2), round(0 if fba_c is None else fba_c, 2),
+                               round(fee_c_total, 2), round(net_c_usd, 2)],
+        })
+        st.dataframe(detail, width="stretch", hide_index=True)
+        st.caption(f"散卖运费：{tier_s}，计费重量 {ship_s} lb，FBA ${0 if fba_s is None else fba_s} ｜ "
+                   f"整箱运费：{tier_c}，计费重量 {ship_c} lb，FBA ${0 if fba_c is None else fba_c} ｜ "
+                   f"整箱佣金按箱数 {n} 件应用批量折扣 -{abs_d*100:.0f}%。{abs_eligible_note}")
+        st.caption("费率口径：佣金与批量折扣取亚马逊官方费率表（2026，美国站）；FBA 取 2026 非旺季费率、不含燃油附加费；"
+                   "品类归属与最终费用以卖家后台及亚马逊官方 FBA Revenue Calculator 为准。")
     st.info("未含退货损失、仓储超期费、汇率波动与税务；落地以亚马逊当期官方费率表为准。")
 
 
@@ -245,10 +447,14 @@ def page_category():
         r_diff = st.checkbox("你能做出差异（规格/材质/组合/私模）", key="cat_diff")
 
     r = calc(price, unit_cost, 0.0, 0.0, referral_pct, fba, acos)
-    m1, m2, m3 = st.columns(3)
-    m1.metric("单位净利 (USD)", f"{r['net']:.2f}")
-    m2.metric("净利率 %", f"{r['net_pct']:.1f}")
-    m3.metric("盈亏平衡 ACOS %", f"{max(r['be_acos'],0):.1f}")
+    cards = [
+        ("单位净利 (USD)", f"{r['net']:.2f}", (f"{r['net_pct']:.1f}%" + (" 净利率" if r["net_pct"] >= 0 else " 净亏损率")), None),
+        ("净利率 %", f"{r['net_pct']:.1f}", None, "单位净利 ÷ 售价"),
+        ("盈亏平衡 ACOS %", f"{max(r['be_acos'],0):.1f}", None, "广告 ACOS 超过该值即亏损"),
+    ]
+    cols = st.columns(3)
+    for col, (lab, val, delta, note) in zip(cols, cards):
+        col.markdown(metric_block(lab, val, delta, note, VIOLET), unsafe_allow_html=True)
 
     risks = []
     if r_high_return:
@@ -305,7 +511,7 @@ def page_market():
     st.success(f"🏆 加权后最推荐先做：**{top['市场']}**（得分 {top['加权得分']}）。{MARKET_NOTES[top['市场']]}")
 
     fig = px.bar(df, x="市场", y="加权得分", text="加权得分", color="加权得分",
-                 color_continuous_scale="Blues")
+                 color_continuous_scale=["#F3E3BE", "#C89B3C", "#B45309"])
     fig.update_layout(height=360, margin=dict(t=20, b=10), showlegend=False)
     st.plotly_chart(fig, width="stretch")
     st.dataframe(df.drop(columns=["加权得分", "一句话依据"]), width="stretch", hide_index=True)
@@ -392,18 +598,24 @@ def page_health():
 
 def main():
     pages = {
-        "🏠 概览与边界": page_overview,
+        "🏠 概览与入口": page_overview,
         "🧮 P1 单位经济测算": page_calc,
         "🧭 P2 选品类助手": page_category,
         "🌍 P3 市场选择器": page_market,
         "🩺 P4 经营健康体检": page_health,
     }
+    order = list(pages)
+    if "nav" not in st.session_state or st.session_state["nav"] not in pages:
+        st.session_state["nav"] = order[0]
     with st.sidebar:
         st.title("创业决策工作台")
-        choice = st.radio("选择页面", list(pages), label_visibility="collapsed")
+        sel = st.radio("选择页面", order,
+                       index=order.index(st.session_state["nav"]),
+                       label_visibility="collapsed")
+        st.session_state["nav"] = sel
         st.divider()
         st.caption("数据：5 家上市公司 2025 年报（akshare）+ 海关宏观；个人学习用途，非投资建议。")
-    pages[choice]()
+    pages[st.session_state["nav"]]()
 
 
 if __name__ == "__main__":
